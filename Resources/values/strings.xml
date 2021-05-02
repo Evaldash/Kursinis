@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Kursinis</string>
     <string name="action_settings">Settings</string>
+    <string name="Btn_left">Button Left</string>
+    <string name="Btn_right">Button Right</string>
+    <string name="Btn_up">Button Up</string>
+    <string name="Btn_down">Button Down</string>
 </resources>

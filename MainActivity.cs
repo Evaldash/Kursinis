@@ -11,14 +11,12 @@ using Java.Util;
 using System.Linq;
 using System.Text;
 using Xamarin.Essentials;
-using AndroidX.AppCompat.Widget;
 
 namespace Kursinis
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
     public class MainActivity : AppCompatActivity
     {
-
         BluetoothAdapter adapter = BluetoothAdapter.DefaultAdapter;
         private BluetoothSocket _socket;
         private bool connected = false;
@@ -29,7 +27,6 @@ namespace Kursinis
 
         private async void Connect(IMenuItem item)
         {
-
             if (adapter == null)
             {
                 connected = false;
@@ -40,7 +37,6 @@ namespace Kursinis
                 connected = false;
                 Toast.MakeText(Application.Context, "Error: Bluetooth device is turned off.", ToastLength.Short).Show();
             }
-
             else
             {
                 device = (from bd in adapter.BondedDevices
@@ -67,8 +63,6 @@ namespace Kursinis
                 }
             }
         }
-
-
         private void Success(IMenuItem item)
         {
             Toast.MakeText(Application.Context, "Conneection succesful.", ToastLength.Short).Show();
@@ -88,14 +82,12 @@ namespace Kursinis
             DisableButtons();
             connected = false;
         }
-
         private async void sendData(string strbuffer)
         {
             byte[] buffer = Encoding.ASCII.GetBytes(strbuffer);
 
             await _socket.OutputStream.WriteAsync(buffer, 0, buffer.Length);
         }
-
         private void InitialiseButtons()
         {
             FindViewById<ImageButton>(Resource.Id.btnUp).Touch += (s, e) =>
@@ -171,7 +163,6 @@ namespace Kursinis
             FindViewById<ImageButton>(Resource.Id.btnRight).Enabled = true;
         }
 
-
         private void DisableButtons()
         {
             FindViewById<ImageButton>(Resource.Id.btnUp).Enabled = false;
@@ -182,7 +173,6 @@ namespace Kursinis
 
         private void ConnectCamera()
         {
-
             var wPlayer = FindViewById<WebView>(Resource.Id.camera);
             //Zoom Out for stretch the content by the width. 
             wPlayer.Settings.LoadWithOverviewMode = true;
@@ -209,28 +199,27 @@ namespace Kursinis
             }
         }
 
-       /* private void InitialiseToolbar()
+        private void InitialiseToolbar()
         {
             var toolbar = FindViewById<AndroidX.AppCompat.Widget.Toolbar>(Resource.Id.toolbar1);
             SetSupportActionBar(toolbar);
             SupportActionBar.Title = "Kursinis";
-        }*/
+
+        }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
 
-            //InitialiseToolbar();
+            InitialiseToolbar();
             ConnectCamera();
             InitialiseButtons();
             DisableButtons();
         }
 
-
-     /*   public override bool OnCreateOptionsMenu(IMenu menu)
+       public override bool OnCreateOptionsMenu(IMenu menu)
         {
             MenuInflater.Inflate(Resource.Menu.settings, menu);
             return base.OnCreateOptionsMenu(menu);
@@ -264,11 +253,10 @@ namespace Kursinis
                 {
                     Toast.MakeText(Application.Context, "Disconnected.", ToastLength.Short).Show();
                     Disconnect(item);
-
                 }
             }
             return base.OnOptionsItemSelected(item);
-        }*/
+        }
 
         // Call Back method  to get the Message form other Activity  
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
@@ -289,7 +277,6 @@ namespace Kursinis
                 }
             }
         }
-
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {

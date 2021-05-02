@@ -34,8 +34,8 @@ namespace Kursinis
 
             FindViewById<Button>(Resource.Id.BtnSave).Click += (o, e) =>
             {
-                string updated_name = FindViewById<TextInputEditText>(Resource.Id.pi_name).Text;
-                string updated_adress = FindViewById<TextInputEditText>(Resource.Id.camera_adress).Text;
+                string updated_name = FindViewById<EditText>(Resource.Id.pi_name).Text;
+                string updated_adress = FindViewById<EditText>(Resource.Id.camera_adress).Text;
 
                 var rtn = new Intent();
                 rtn.PutExtra("updated_name", updated_name);

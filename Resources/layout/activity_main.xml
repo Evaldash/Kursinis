@@ -8,7 +8,16 @@
     android:orientation="vertical"
     android:weightSum="100"
     tools:ignore="MissingDimension">
-
+        
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar1"
+        android:minHeight="?android:attr/actionBarSize"
+        android:background="?android:attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:layout_weight="10"/>
 
     <RelativeLayout
         android:orientation="horizontal"
@@ -38,6 +47,7 @@
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
                 android:backgroundTint="@color/mtrl_btn_transparent_bg_color"
+                android:contentDescription="@string/Btn_left"
                 android:id="@+id/btnLeft"
                 />
             <ImageButton
@@ -46,6 +56,7 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
+                android:contentDescription="@string/Btn_right"
                 android:backgroundTint="@color/mtrl_btn_transparent_bg_color"
                 android:id="@+id/btnRight" />
         </LinearLayout>
@@ -60,6 +71,7 @@
             tools:ignore="MissingDimension">
             <ImageButton
                 android:src="@drawable/BtnUpIcon"
+                android:contentDescription="@string/Btn_up"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/mtrl_btn_transparent_bg_color"
@@ -67,6 +79,7 @@
                 android:id="@+id/btnUp"/>
             <ImageButton
                 android:src="@drawable/btndowniconxml"
+                android:contentDescription="@string/Btn_down"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/mtrl_btn_transparent_bg_color"
