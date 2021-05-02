@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+    <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:p4="http://xamarin.com/mono/android/designer"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minWidth="25px"
+    android:minHeight="25px"
+    android:padding="100px">
+
+        <TableLayout
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tableLayout1">
+
+            <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+                <TextView
+                p4:placeholder="true"
+                android:minWidth="30px"
+                android:minHeight="30px"
+                android:id="@+id/textView1"
+                android:text="Pi name:"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+                <EditText
+                android:id="@+id/pi_name"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text=""/>
+            </TableRow>
+            <TableRow
+            android:id="@+id/tableRow3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                p4:placeholder="true"
+                android:minWidth="30px"
+                android:minHeight="30px"
+                android:id="@+id/textView7"
+                android:text="Camera adress:"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+                <EditText
+                android:id="@+id/camera_adress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""/>
+            </TableRow>
+    </TableLayout>
+            <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">    
+        <Button
+        android:text="Save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/BtnSave"
+        android:layout_weight="1"/>
+        
+        <Button
+            android:text="Cancel"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/BtnCancel"
+            android:layout_weight="1"/>
+
+        </LinearLayout>
+
+</LinearLayout>
