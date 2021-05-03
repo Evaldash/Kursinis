@@ -21,11 +21,12 @@ namespace Kursinis
         private BluetoothSocket _socket;
         private bool connected = false;
         BluetoothDevice device;
+        IMenuItem BTsymbol;
 
         private string pi_name = "raspberrypi";
         private string camera_adress = "http://192.168.1.111:8080/?action=stream";
 
-        private async void Connect(IMenuItem item)
+        private async void Connect()
         {
             if (adapter == null)
             {
@@ -54,7 +55,7 @@ namespace Kursinis
                     {
                         _socket = device.CreateRfcommSocketToServiceRecord(UUID.FromString("00001101-0000-1000-8000-00805f9b34fb"));
                         await _socket.ConnectAsync();
-                        Success(item);
+                        Success();
                     }
                     catch (Java.IO.IOException)
                     {
@@ -63,22 +64,22 @@ namespace Kursinis
                 }
             }
         }
-        private void Success(IMenuItem item)
+        private void Success()
         {
             Toast.MakeText(Application.Context, "Conneection succesful.", ToastLength.Short).Show();
-
-            item.SetIcon(Resource.Drawable.BTConnected);
-            item.SetTitle("Disconnect");
+            
+            BTsymbol.SetIcon(Resource.Drawable.BTConnected);
+            BTsymbol.SetTitle("Disconnect");
             EnableButtons();
             connected = true;
         }
 
-        private void Disconnect(IMenuItem item)
+        private void Disconnect()
         {
             _socket.Close();
 
-            item.SetIcon(Resource.Drawable.BTDisconnected);
-            item.SetTitle("Connect");
+            BTsymbol.SetIcon(Resource.Drawable.BTDisconnected);
+            BTsymbol.SetTitle("Connect");
             DisableButtons();
             connected = false;
         }
@@ -86,7 +87,15 @@ namespace Kursinis
         {
             byte[] buffer = Encoding.ASCII.GetBytes(strbuffer);
 
-            await _socket.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+            try
+            {
+                await _socket.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+            }
+            catch (Java.IO.IOException) {
+                Toast.MakeText(Application.Context, "Conneection lost!", ToastLength.Short).Show();
+                Disconnect();
+
+            }
         }
         private void InitialiseButtons()
         {
@@ -244,15 +253,17 @@ namespace Kursinis
 
             if (item.ItemId == Resource.Id.connectionStatus)
             {
+                BTsymbol = item;
+
                 if (!connected)
                 {
                     Toast.MakeText(Application.Context, "Connecting...", ToastLength.Short).Show();
-                    Connect(item);
+                    Connect();
                 }
                 else
                 {
                     Toast.MakeText(Application.Context, "Disconnected.", ToastLength.Short).Show();
-                    Disconnect(item);
+                    Disconnect();
                 }
             }
             return base.OnOptionsItemSelected(item);
