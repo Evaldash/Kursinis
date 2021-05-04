@@ -94,12 +94,11 @@ namespace Kursinis
             catch (Java.IO.IOException) {
                 Toast.MakeText(Application.Context, "Conneection lost!", ToastLength.Short).Show();
                 Disconnect();
-
             }
         }
         private void InitialiseButtons()
         {
-            FindViewById<ImageButton>(Resource.Id.btnUp).Touch += (s, e) =>
+            FindViewById<ImageButton>(Resource.Id.btnUp).Touch += (s, e) => // Up
             {
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down)
@@ -115,7 +114,7 @@ namespace Kursinis
                 e.Handled = handled;
             };
 
-            FindViewById<ImageButton>(Resource.Id.btnDown).Touch += (s, e) => // atgal
+            FindViewById<ImageButton>(Resource.Id.btnDown).Touch += (s, e) => // Down
             {
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down)
@@ -131,7 +130,7 @@ namespace Kursinis
                 e.Handled = handled;
             }; ;
 
-            FindViewById<ImageButton>(Resource.Id.btnLeft).Touch += (s, e) => // kairen
+            FindViewById<ImageButton>(Resource.Id.btnLeft).Touch += (s, e) => // Left
             {
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down)
@@ -147,7 +146,7 @@ namespace Kursinis
                 e.Handled = handled;
             };
 
-            FindViewById<ImageButton>(Resource.Id.btnRight).Touch += (s, e) => // desinen
+            FindViewById<ImageButton>(Resource.Id.btnRight).Touch += (s, e) => // Right
             {
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down)
@@ -190,21 +189,26 @@ namespace Kursinis
             wPlayer.SetPadding(0, 0, 0, 0);
 
             var current = Connectivity.NetworkAccess;
-            if (current == NetworkAccess.Internet) // jei yra internetas
+            if (current == NetworkAccess.Internet) // If internet connection is present
             {
                 var profiles = Connectivity.ConnectionProfiles;
-                if (profiles.Contains(ConnectionProfile.WiFi)) // jei prisijunges prie wifi
+                if (profiles.Contains(ConnectionProfile.WiFi)) // if wifi is enabled
                 {
-                    wPlayer.LoadUrl(camera_adress);
+                    WebSettings settings = wPlayer.Settings;
+                    settings.JavaScriptEnabled = true;
+                    
+                    wPlayer.AddJavascriptInterface(new Kursinis.MyJsInterface(this, camera_adress), "CSharp");
+
+                    wPlayer.LoadUrl("file:///android_asset/Camera.html?camera="+camera_adress);
                 }
                 else
                 {
-                    wPlayer.LoadUrl("file:///android_asset/NoConnection.html");
+                    wPlayer.LoadUrl("file:///android_asset/NoWifi.html");
                 }
             }
             else
             {
-                wPlayer.LoadUrl("file:///android_asset/NoConnection.html");
+                wPlayer.LoadUrl("file:///android_asset/NoInternet.html");
             }
         }
 
@@ -213,7 +217,6 @@ namespace Kursinis
             var toolbar = FindViewById<AndroidX.AppCompat.Widget.Toolbar>(Resource.Id.toolbar1);
             SetSupportActionBar(toolbar);
             SupportActionBar.Title = "Kursinis";
-
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -247,7 +250,8 @@ namespace Kursinis
 
             if (item.ItemId == Resource.Id.menu_info)
             {
-
+                var intent = new Intent(this, typeof(InfoActivity));
+                StartActivity(intent);
 
             }
 
