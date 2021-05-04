@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      .ErrorMessage{
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      font-size: xx-large;
+      display: none;
+      }
+      body{
+      background-color: gray;
+      }
+      img{
+      position: absolute;
+      margin: auto;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      function NoCameraFound(){
+      document.getElementById("ErrorMessage").style.display = "block";
+      }
+
+      function CameraFound(){
+      document.getElementById("ErrorMessage").style.display = "none";
+      }
+
+      window.addEventListener('load', (event) =>{
+      var url_string = window.location.href
+      var url = new URL(url_string);
+      var camera_adress= url.searchParams.get("camera");
+
+      document.getElementById("camera").src = camera_adress;
+      });
+    </script>
+
+    <img id="camera" src="" alt="" onload="CameraFound();" onerror="NoCameraFound();"></img>
+    <h1 class="ErrorMessage" id="ErrorMessage"> Error: couldn't connect to camera. </h1>
+
+  </body>
+</html>
