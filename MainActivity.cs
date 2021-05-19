@@ -8,6 +8,7 @@ using Android.Webkit;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using Java.Util;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xamarin.Essentials;
@@ -20,25 +21,35 @@ namespace Kursinis
         BluetoothAdapter adapter = BluetoothAdapter.DefaultAdapter;
         private BluetoothSocket _socket;
         private bool connected = false;
+
         BluetoothDevice device;
         IMenuItem BTsymbol;
 
-        private string pi_name = "raspberrypi";
-        private string camera_adress = "http://192.168.1.111:8080/?action=stream";
+        //private string pi_name = "raspberrypi";
+        //private string camera_adress = "http://192.168.1.111:8080/?action=stream";
 
-        private async void Connect()
-        {
+        private string pi_name = null;
+        private string camera_adress = null;
+
+        private bool BTadapterOK() {
             if (adapter == null)
             {
                 connected = false;
                 Toast.MakeText(Application.Context, "Error: no Bluetooth device found.", ToastLength.Short).Show();
+                return false;
             }
             else if (!adapter.IsEnabled)
             {
                 connected = false;
                 Toast.MakeText(Application.Context, "Error: Bluetooth device is turned off.", ToastLength.Short).Show();
+                return false;
             }
-            else
+            return true;
+        }
+
+        private async void Connect()
+        {
+            if (BTadapterOK())
             {
                 device = (from bd in adapter.BondedDevices
                           where bd.Name == pi_name
