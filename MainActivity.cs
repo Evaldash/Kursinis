@@ -18,7 +18,7 @@ namespace Kursinis
     public class MainActivity : AppCompatActivity{
         BluetoothAdapter adapter = BluetoothAdapter.DefaultAdapter;
         private BluetoothSocket _socket;
-        private bool connected = false;
+        private bool BTconnected = false;
 
         BluetoothDevice device;
         IMenuItem BTsymbol;
@@ -28,33 +28,33 @@ namespace Kursinis
 
         private bool BTadapterOK() {
             if (adapter == null){
-                connected = false;
+                BTconnected = false;
                 Toast.MakeText(Application.Context, "Error: no Bluetooth device found.", ToastLength.Short).Show();
                 return false;
             }
             else if (!adapter.IsEnabled){
-                connected = false;
+                BTconnected = false;
                 Toast.MakeText(Application.Context, "Error: Bluetooth device is turned off.", ToastLength.Short).Show();
                 return false;
             }
             return true;
         }
 
-        private async void Connect(){
+        private async void BTConnect(){
             if (BTadapterOK()){
                 device = (from bd in adapter.BondedDevices
                           where bd.Name == pi_name
                           select bd).FirstOrDefault();
 
                 if (device == null){
-                    connected = false;
+                    BTconnected = false;
                     Toast.MakeText(Application.Context, "Error: no " + pi_name + " device found.", ToastLength.Short).Show();
                 }
                 else{
                     try{
                         _socket = device.CreateRfcommSocketToServiceRecord(UUID.FromString("00001101-0000-1000-8000-00805f9b34fb"));
                         await _socket.ConnectAsync();
-                        Success();
+                        BTSuccess();
                     }
                     catch (Java.IO.IOException){
                         Toast.MakeText(Application.Context, "Error: no response from Bluetooth server.", ToastLength.Short).Show();
@@ -62,20 +62,20 @@ namespace Kursinis
                 }
             }
         }
-        private void Success(){
+        private void BTSuccess(){
             Toast.MakeText(Application.Context, "Conneection succesful.", ToastLength.Short).Show();
             
             BTsymbol.SetIcon(Resource.Drawable.BTConnected);
             EnableButtons();
-            connected = true;
+            BTconnected = true;
         }
 
-        private void Disconnect(){
+        private void BTDisconnect(){
             _socket.Close();
 
             BTsymbol.SetIcon(Resource.Drawable.BTDisconnected);
             DisableButtons();
-            connected = false;
+            BTconnected = false;
         }
         private async void sendData(string strbuffer){
             byte[] buffer = Encoding.ASCII.GetBytes(strbuffer);
@@ -85,7 +85,7 @@ namespace Kursinis
             }
             catch (Java.IO.IOException) {
                 Toast.MakeText(Application.Context, "Conneection lost!", ToastLength.Short).Show();
-                Disconnect();
+                BTDisconnect();
             }
         }
         private void InitialiseButtons(){
@@ -158,7 +158,6 @@ namespace Kursinis
 
         private void ConnectCamera(){
             var wPlayer = FindViewById<WebView>(Resource.Id.camera);
-            //Zoom Out for stretch the content by the width. 
             wPlayer.Settings.LoadWithOverviewMode = true;
             wPlayer.Settings.UseWideViewPort = true;
 
@@ -183,6 +182,13 @@ namespace Kursinis
                 wPlayer.LoadUrl("file:///android_asset/NoInternet.html");
             }
         }
+        private void DisconnectCamera() {
+            var wPlayer = FindViewById<WebView>(Resource.Id.camera);
+            wPlayer.Settings.LoadWithOverviewMode = true;
+            wPlayer.Settings.UseWideViewPort = true;
+
+            wPlayer.LoadUrl("");
+        }
 
         private void InitialiseToolbar(){
             var toolbar = FindViewById<AndroidX.AppCompat.Widget.Toolbar>(Resource.Id.toolbar1);
@@ -196,13 +202,22 @@ namespace Kursinis
             SetContentView(Resource.Layout.activity_main);
 
             InitialiseToolbar();
-            ConnectCamera();
+
+            if (Preferences.Get("CamEnabled", false)) {
+                ConnectCamera();
+            }
             InitialiseButtons();
             DisableButtons();
         }
 
        public override bool OnCreateOptionsMenu(IMenu menu){
             MenuInflater.Inflate(Resource.Menu.settings, menu);
+
+            var CamIcon = menu.FindItem(Resource.Id.CameraIcon);
+
+            if (Preferences.Get("CamEnabled", false)) { // change the camera icon to enabled if the user enabled it
+                CamIcon.SetIcon(Resource.Drawable.outline_videocam_24);
+            }
             return base.OnCreateOptionsMenu(menu);
         }
 
@@ -215,20 +230,33 @@ namespace Kursinis
                 StartActivityForResult(intent, 1234);
             }
 
-            if (item.ItemId == Resource.Id.menu_info){
+            else if (item.ItemId == Resource.Id.menu_info){
                 var intent = new Intent(this, typeof(InfoActivity));
                 StartActivity(intent);
             }
 
-            if (item.ItemId == Resource.Id.connectionStatus){
+            else if (item.ItemId == Resource.Id.connectionStatus){
                 BTsymbol = item;
 
-                if (!connected){
-                    Connect();
+                if (!BTconnected){
+                    BTConnect();
                 }
                 else{
                     Toast.MakeText(Application.Context, "Disconnected.", ToastLength.Short).Show();
-                    Disconnect();
+                    BTDisconnect();
+                }
+            }
+
+            if (item.ItemId == Resource.Id.CameraIcon) {
+                if (Preferences.Get("CamEnabled", false) == false) { // jei buvo isjungta
+                    Preferences.Set("CamEnabled", true);
+                    item.SetIcon(Resource.Drawable.outline_videocam_24);
+                    ConnectCamera();
+                }
+                else { // jei buvo ijungta
+                    Preferences.Set("CamEnabled", false);
+                    item.SetIcon(Resource.Drawable.outline_videocam_off_24);
+                    DisconnectCamera();
                 }
             }
             return base.OnOptionsItemSelected(item);
@@ -248,7 +276,10 @@ namespace Kursinis
                     Preferences.Set("pi_name", pi_name);
                     Preferences.Set("camera_adress", camera_adress);
 
-                    ConnectCamera();
+                    if (Preferences.Get("CamEnabled", false)) {
+                        ConnectCamera();
+                    }
+
                     Toast.MakeText(Application.Context, "Settings saved.", ToastLength.Short).Show();
                 }
             }
