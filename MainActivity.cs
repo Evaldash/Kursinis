@@ -8,7 +8,6 @@ using Android.Webkit;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using Java.Util;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xamarin.Essentials;
@@ -25,11 +24,8 @@ namespace Kursinis
         BluetoothDevice device;
         IMenuItem BTsymbol;
 
-        //private string pi_name = "raspberrypi";
-        //private string camera_adress = "http://192.168.1.111:8080/?action=stream";
-
-        private string pi_name = null;
-        private string camera_adress = null;
+        private string pi_name = Preferences.Get("pi_name", "raspberrypi");
+        private string camera_adress = Preferences.Get("camera_adress", "http://192.168.1.111:8080/?action=stream");
 
         private bool BTadapterOK() {
             if (adapter == null)
@@ -297,6 +293,9 @@ namespace Kursinis
 
                     pi_name = updated_name;
                     camera_adress = updated_adress;
+
+                    Preferences.Set("pi_name", pi_name);
+                    Preferences.Set("camera_adress", camera_adress);
 
                     ConnectCamera();
                     Toast.MakeText(Application.Context, "Settings saved.", ToastLength.Short).Show();
