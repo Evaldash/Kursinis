@@ -52,6 +52,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="http://192.168.1.111:8080/?action=stream"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:text="Scan for Pi" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scan"
+            android:id="@+id/networkScanBtn"
+         />
+
     </GridLayout>
     <LinearLayout
         android:layout_width="match_parent"

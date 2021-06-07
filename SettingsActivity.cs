@@ -2,16 +2,13 @@
 using Android.Bluetooth;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using Google.Android.Material.TextField;
+using Rssdp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Kursinis{
+namespace Kursinis {
     [Activity(Label = "Activity1", ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
     public class SettingsActivity : Activity{
         BluetoothAdapter adapter = BluetoothAdapter.DefaultAdapter;
@@ -20,13 +17,10 @@ namespace Kursinis{
 
         protected override void OnCreate(Bundle savedInstanceState){
             base.OnCreate(savedInstanceState);
-
             SetContentView(Resource.Layout.settings);
-
             ICollection<BluetoothDevice> devices = adapter.BondedDevices;
 
             BTSelection = FindViewById<LinearLayout>(Resource.Id.SelectedBTDevice);
-
             BTSelection.Click += BTSelection_clicked;
 
             string camera_adress = Intent.GetStringExtra("camera_adress");
@@ -35,6 +29,12 @@ namespace Kursinis{
 
             FindViewById<Button>(Resource.Id.BtnCancel).Click += (o, e) =>{
                 Finish();
+            };
+
+            FindViewById<Button>(Resource.Id.networkScanBtn).Click += (o, e) => {
+                var intent = new Intent(this, typeof(Scanning));
+
+                StartActivityForResult(intent, 1234);
             };
 
             FindViewById<Button>(Resource.Id.BtnSave).Click += (o, e) =>{
@@ -65,9 +65,13 @@ namespace Kursinis{
             }
         }
 
+
+
         private void PopupMenu_MenuItemClick(object sender, PopupMenu.MenuItemClickEventArgs e){
             FindViewById<TextView>(Resource.Id.BTselectionText).Text = e.Item.TitleFormatted.ToString();
             updated_name = e.Item.TitleFormatted.ToString();
         }
+
+
     }
 }
