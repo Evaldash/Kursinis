@@ -9,13 +9,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Kursinis
-{
+namespace Kursinis{
     [Activity(Label = "Activity1", ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
-    public class InfoActivity : Activity
-    {
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
+    public class InfoActivity : Activity{
+        protected override void OnCreate(Bundle savedInstanceState){
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.Info);
 

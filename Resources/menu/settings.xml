@@ -2,11 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
+  <item
+  android:icon="@drawable/outline_videocam_off_24"
+  android:id="@+id/CameraIcon"
+  app:showAsAction="always"/>
+
   <item
     android:icon="@drawable/BTDisconnected"
     android:id="@+id/connectionStatus"
-    app:showAsAction="always|withText"
-    android:title="Connect"/>
+    app:showAsAction="always"/>
 
   <item
     android:id="@+id/menu_info"

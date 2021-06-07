@@ -11,17 +11,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Kursinis
-{
+namespace Kursinis{
     [Activity(Label = "Activity1", ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
-    public class SettingsActivity : Activity
-    {
+    public class SettingsActivity : Activity{
         BluetoothAdapter adapter = BluetoothAdapter.DefaultAdapter;
         LinearLayout BTSelection;
         string updated_name = null;
 
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
+        protected override void OnCreate(Bundle savedInstanceState){
             base.OnCreate(savedInstanceState);
 
             SetContentView(Resource.Layout.settings);
@@ -36,13 +33,11 @@ namespace Kursinis
 
             FindViewById<EditText>(Resource.Id.camera_adress).Text = camera_adress;
 
-            FindViewById<Button>(Resource.Id.BtnCancel).Click += (o, e) =>
-            {
+            FindViewById<Button>(Resource.Id.BtnCancel).Click += (o, e) =>{
                 Finish();
             };
 
-            FindViewById<Button>(Resource.Id.BtnSave).Click += (o, e) =>
-            {
+            FindViewById<Button>(Resource.Id.BtnSave).Click += (o, e) =>{
                 string updated_adress = FindViewById<EditText>(Resource.Id.camera_adress).Text;
 
                 var rtn = new Intent();
@@ -53,32 +48,26 @@ namespace Kursinis
                 Finish();
             };
         }
-        private void BTSelection_clicked(object sender, System.EventArgs e)
-        {
+        private void BTSelection_clicked(object sender, System.EventArgs e) {
             PopupMenu popupMenu = new PopupMenu(this, BTSelection);
             popupMenu.MenuItemClick += PopupMenu_MenuItemClick;
 
-            if (BluetoothAdapter.DefaultAdapter.BondedDevices.Count == 0)
-            {
+            if (BluetoothAdapter.DefaultAdapter.BondedDevices.Count == 0){
                 Toast.MakeText(Application.Context, "No paired devices found. Please pair your Pi via Bluetooth.", ToastLength.Short).Show();
             }
 
             else {
                 int i = 1;
-                foreach (var pairedDevice in BluetoothAdapter.DefaultAdapter.BondedDevices)
-                {
+                foreach (var pairedDevice in BluetoothAdapter.DefaultAdapter.BondedDevices){
                     popupMenu.Menu.Add(IMenu.None, i, i, pairedDevice.Name);
                 }
                 popupMenu.Show();
             }
         }
 
-
-        private void PopupMenu_MenuItemClick(object sender, PopupMenu.MenuItemClickEventArgs e)
-        {
+        private void PopupMenu_MenuItemClick(object sender, PopupMenu.MenuItemClickEventArgs e){
             FindViewById<TextView>(Resource.Id.BTselectionText).Text = e.Item.TitleFormatted.ToString();
             updated_name = e.Item.TitleFormatted.ToString();
         }
-
     }
 }
