@@ -1,9 +1,12 @@
 ﻿using Android.App;
 using Android.OS;
 using Android.Widget;
-using Rssdp;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kursinis {
     [Activity(Label = "Activity1", ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
@@ -27,61 +30,69 @@ namespace Kursinis {
             mListView.Adapter = adapter;
 
             FindViewById<Button>(Resource.Id.ExitScan).Click += (o, e) => {
+                //FindIPS("192.168.1.");
                 Finish();
             };
 
-            adapter.Add("Hello");
+            FindIPS("192.168.1.");
 
-            BeginSearch();
+
+            //Action action = () => FindIPS("192.168.1.");
+
+            //action.BeginInvoke(ar => action.EndInvoke(ar), null);
+            //Invoke(action);
         }
 
-        // Define _DeviceLocator as a field so it doesn't get GCed after the method ends, and it can
-        // continue to listen for notifications until it is explicitly stopped 
-        // (with a call to _DeviceLocator.StopListeningForNotifications();)
-        private SsdpDeviceLocator _DeviceLocator;
+        public async void FindIPS(string subadrr) {
+            Thread.Sleep(500);
+            Ping ping;
+            IPAddress addr;
+            PingReply pingReply;
+            IPHostEntry host;
+            string name;
 
-        // Call this method from somewhere in your code to start the search.
-        public void BeginSearch() {
-            _DeviceLocator = new SsdpDeviceLocator();
+            Parallel.For(1, 254, (i, loopState) => {
 
-            // (Optional) Set the filter so we only see notifications for devices we care about 
-            // (can be any search target value i.e device type, uuid value etc - any value that appears in the 
-            // DiscoverdSsdpDevice.NotificationType property or that is used with the searchTarget parameter of the Search method).
-            _DeviceLocator.NotificationFilter = "upnp:rootdevice";
+                ping = new Ping();
+                string TestingAddr = subadrr + i;
+                pingReply = ping.Send(TestingAddr);
 
-            // Connect our event handler so we process devices as they are found
-            _DeviceLocator.DeviceAvailable += deviceLocator_DeviceAvailable;
+                if (pingReply.Status == IPStatus.Success) {
+                    string entry;
+                    try {
+                        addr = IPAddress.Parse(TestingAddr);
+                        host = Dns.GetHostEntry(addr);
+                        name = host.HostName;
 
-            // Enable listening for notifications (optional)
-            _DeviceLocator.StartListeningForNotifications();
-
-            // Perform a search so we don't have to wait for devices to broadcast notifications 
-            // again to get any results right away (notifications are broadcast periodically).
-            _DeviceLocator.SearchAsync();
-
-            Console.ReadLine();
+                        entry = name + '(' + addr + ')';
+                    }
+                    catch (Exception ex) {
+                        name = "?";
+                        entry = name;
+                    }
+                    adapter.Add(entry);
+                }
+            });
         }
 
-        // Process each found device in the event handler
-        async static void deviceLocator_DeviceAvailable(object sender, DeviceAvailableEventArgs e) {
-            //Device data returned only contains basic device details and location of full device description.
-            //Console.WriteLine("Found " + e.DiscoveredDevice.Usn + " at " + e.DiscoveredDevice.DescriptionLocation.ToString());
+        public static bool PingHost(string nameOrAddress) {
+            bool pingable = false;
+            Ping pinger = null;
 
-            //Can retrieve the full device description easily though.
-            var fullDevice = await e.DiscoveredDevice.GetDeviceInfo();
-
-            //Console.WriteLine(fullDevice.FriendlyName);
-            //Console.WriteLine();
-
-            
-
-            //adapter.Add(fullDevice.FriendlyName);
-
-
+            try {
+                pinger = new Ping();
+                PingReply reply = pinger.Send(nameOrAddress);
+                pingable = reply.Status == IPStatus.Success;
+            }
+            catch (PingException) {
+                // Discard PingExceptions and return false;
+            }
+            finally {
+                if (pinger != null) {
+                    pinger.Dispose();
+                }
+            }
+            return pingable;
         }
-
-
-
-
     }
 }
