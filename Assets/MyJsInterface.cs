@@ -1,26 +1,14 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Content;
 using Android.Webkit;
 using Android.Widget;
 using Java.Interop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Kursinis
-{
+namespace Kursinis {
     class MyJsInterface : Java.Lang.Object
     {
         Context context;
-        string camera_adress;
-
-        public MyJsInterface(Context context, string cam)
+        public MyJsInterface(Context context)
         {
-            camera_adress = cam;
             this.context = context;
         }
 
@@ -30,11 +18,11 @@ namespace Kursinis
         {
             Toast.MakeText(context, msg, ToastLength.Short).Show();
         }
-
-        public string GiveCamera() {
-            Toast.MakeText(context, camera_adress, ToastLength.Short).Show();
-            return camera_adress;
-            
+        public bool CameraFound() {
+            return true;
+        }
+        public bool CameraFailure() {
+            return false;
         }
     }
 }
