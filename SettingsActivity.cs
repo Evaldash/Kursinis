@@ -14,7 +14,6 @@ namespace Kursinis {
         BluetoothAdapter adapter = BluetoothAdapter.DefaultAdapter;
         LinearLayout BTSelection;
         string updated_name = null;
-
         protected override void OnCreate(Bundle savedInstanceState){
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.settings);
@@ -65,13 +64,9 @@ namespace Kursinis {
             }
         }
 
-
-
         private void PopupMenu_MenuItemClick(object sender, PopupMenu.MenuItemClickEventArgs e){
             FindViewById<TextView>(Resource.Id.BTselectionText).Text = e.Item.TitleFormatted.ToString();
             updated_name = e.Item.TitleFormatted.ToString();
         }
-
-
     }
 }

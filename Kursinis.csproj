@@ -66,6 +66,7 @@
     <Reference Include="System.Numerics.Vectors" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetworkSearcher.cs" />
     <Compile Include="Scanning.cs" />
     <Compile Include="InfoActivity.cs" />
     <Compile Include="Assets\MyJsInterface.cs" />
