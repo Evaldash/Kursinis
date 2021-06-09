@@ -6,6 +6,8 @@ using Android.Views;
 using Android.Widget;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Xamarin.Essentials;
 
 namespace Kursinis {
     [Activity(Label = "Activity1", ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
@@ -30,9 +32,23 @@ namespace Kursinis {
             };
 
             FindViewById<Button>(Resource.Id.networkScanBtn).Click += (o, e) => {
-                var intent = new Intent(this, typeof(Scanning));
 
-                StartActivityForResult(intent, 1234);
+                var current = Connectivity.NetworkAccess;
+                if (current == Xamarin.Essentials.NetworkAccess.Internet) { // If internet connection is present
+                    var profiles = Connectivity.ConnectionProfiles;
+                    if (profiles.Contains(ConnectionProfile.WiFi)) { // if wifi is enabled
+
+                        var intent = new Intent(this, typeof(Scanning));
+                        StartActivityForResult(intent, 1234);
+                    }
+                    else {
+                        Toast.MakeText(Application.Context, "No WiFi found. Please connect your phone to the same WiFi network as your camera.", ToastLength.Short).Show();
+                    }
+                }
+                else {
+                    Toast.MakeText(Application.Context, "The Network scanner requires an Internet connection. Please make sure your device has an active Internet connection.", ToastLength.Short).Show();
+
+                }
             };
 
             FindViewById<Button>(Resource.Id.BtnSave).Click += (o, e) =>{
@@ -68,7 +84,6 @@ namespace Kursinis {
             updated_name = e.Item.TitleFormatted.ToString();
         }
 
-
         // Call Back method  to get the Message form other Activity  
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data) {
             base.OnActivityResult(requestCode, resultCode, data);
@@ -79,6 +94,5 @@ namespace Kursinis {
                 }
             }
         }
-
     }
 }
