@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 using Android.Webkit;
 using System.Threading;
 using Android.Content;
+using System.Linq;
+using System;
+using Android.Net.Wifi;
+using System.Runtime.Remoting.Contexts;
 
 namespace Kursinis {
     [Activity(Label = "Activity1", ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
@@ -38,7 +42,16 @@ namespace Kursinis {
                 Finish();
             };
 
-            FindCameras("192.168.1.", token);
+            WifiManager wifiManager = (WifiManager)Android.App.Application.Context.GetSystemService(Service.WifiService);
+            int ip = wifiManager.ConnectionInfo.IpAddress;
+            IPAddress ipAddr = new IPAddress(ip);
+
+            string IPaddress = ipAddr.ToString();
+            string[] numbers = IPaddress.Split('.');
+            string subnet = numbers[0] + '.' + numbers[1] + '.' + numbers[2] + '.';
+
+            Console.WriteLine(subnet);
+            FindCameras(subnet, token);
         }
 
         public async void FindCameras(string subadrr, CancellationToken token) {
@@ -112,7 +125,7 @@ namespace Kursinis {
                 FindViewById<TextView>(Resource.Id.ProgressText).Text = "There seems to be more than one camera available. Please select one out of the cameras.";
             }
             else if (cameras.Count == 1) {
-                FindViewById<TextView>(Resource.Id.ProgressText).Text = "Camera found. If you want to use it, click the Save camera button at the bottom.";
+                FindViewById<TextView>(Resource.Id.ProgressText).Text = "Camera found. Click the Save camera button to save the address.";
                 FindViewById<Button>(Resource.Id.SaveCamera).Enabled = true;
                 wPlayer.LoadUrl("file:///android_asset/Camera.html?camera=" + cameras[0]);
                 selected_camera = cameras[0];
