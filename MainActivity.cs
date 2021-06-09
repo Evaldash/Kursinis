@@ -169,9 +169,8 @@ namespace Kursinis
                 if (profiles.Contains(ConnectionProfile.WiFi)){ // if wifi is enabled
                     WebSettings settings = wPlayer.Settings;
                     settings.JavaScriptEnabled = true;
-                    
-                    //wPlayer.AddJavascriptInterface(new Kursinis.MyJsInterface(this, camera_adress), "CSharp");
 
+                    
                     wPlayer.LoadUrl("file:///android_asset/Camera.html?camera="+camera_adress);
                 }
                 else{
