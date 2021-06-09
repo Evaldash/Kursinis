@@ -6,17 +6,22 @@
     <script>
 
       window.addEventListener('load', (event) =>{
-      var url_string = window.location.href
+      var url_string = window.location.href;
       var url = new URL(url_string);
       var camera_adress= url.searchParams.get("camera");
 
       document.getElementById("camera").src = camera_adress;
+      });
 
       
-      });
     </script>
 
-    <img id="camera" src="" alt="" onload="CSharp.CameraFound ()" onerror="CSharp.ShowToast ('Call C#')"></img>
+    <img id="camera" src="" alt="" onload="CSharp.SendData('true')" onerror="CSharp.SendData('Yooka')"></img>
+    <div id="demo"></div>
+
+    <script>
+    document.getElementById("demo").innerHTML =  window.location.href;
+    </script>
 
   </body>
 </html>
