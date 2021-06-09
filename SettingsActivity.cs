@@ -67,5 +67,18 @@ namespace Kursinis {
             FindViewById<TextView>(Resource.Id.BTselectionText).Text = e.Item.TitleFormatted.ToString();
             updated_name = e.Item.TitleFormatted.ToString();
         }
+
+
+        // Call Back method  to get the Message form other Activity  
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data) {
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (requestCode == 1234) {
+                if (resultCode == Result.Ok) {
+                    FindViewById<EditText>(Resource.Id.camera_adress).Text = data.GetStringExtra("selected_camera");
+                    Toast.MakeText(Application.Context, "Camera adress saved.", ToastLength.Short).Show();
+                }
+            }
+        }
+
     }
 }
