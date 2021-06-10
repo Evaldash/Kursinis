@@ -3,19 +3,12 @@ using Android.OS;
 using Android.Widget;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Android.Webkit;
 using System.Threading;
 using Android.Content;
-using System.Linq;
 using System;
 using Android.Net.Wifi;
-using System.Runtime.Remoting.Contexts;
-using System.Drawing;
-using System.IO;
-using System.Net.Http;
-using System.Globalization;
 
 namespace Kursinis {
     [Activity(Label = "Activity1", ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
