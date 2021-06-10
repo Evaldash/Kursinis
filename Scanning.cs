@@ -16,6 +16,7 @@ namespace Kursinis {
 
         CancellationTokenSource _tokenSource = null;
         List<string> Cameras = new List<string>();
+        int selected_camera_index;
         string selected_camera;
 
         protected override void OnCreate(Bundle savedInstanceState) {
@@ -82,28 +83,67 @@ namespace Kursinis {
             }
 
             if (!token.IsCancellationRequested) { // cancel the loop if the cancel button is pressed
-                DisplayCameras(Cameras);
+                DisplayCameras();
             }
         }
-        private void DisplayCameras(List<string> cameras) {
-            WebView wPlayer = FindViewById<WebView>(Resource.Id.TestCamera);
-            WebSettings settings = wPlayer.Settings;
-            settings.JavaScriptEnabled = true;
+        private void DisplayCameras() {
 
             FindViewById<ProgressBar>(Resource.Id.ScanningProgressBar).Visibility = Android.Views.ViewStates.Invisible;
 
-            if (cameras.Count > 1) {
+            if (Cameras.Count > 1) {
+                FindViewById<Button>(Resource.Id.SaveCamera).Enabled = true;
+
+                FindViewById<ImageButton>(Resource.Id.PreviousCamera).Click += (s, e) => {
+                    DisplayPreviousCamera();
+                };
+                FindViewById<ImageButton>(Resource.Id.NextCamera).Click += (s, e) => {
+                    DisplayNextCamera();
+                };
+
+                FindViewById<ImageButton>(Resource.Id.PreviousCamera).Enabled = true;
+                FindViewById<ImageButton>(Resource.Id.PreviousCamera).Visibility = Android.Views.ViewStates.Visible;
+                FindViewById<ImageButton>(Resource.Id.NextCamera).Enabled = true;
+                FindViewById<ImageButton>(Resource.Id.NextCamera).Visibility = Android.Views.ViewStates.Visible;
+
                 FindViewById<TextView>(Resource.Id.ProgressText).Text = "There seems to be more than one device available. Please select the camera feed you wish to use.";
             }
-            else if (cameras.Count == 1) {
+            else if (Cameras.Count == 1) {
                 FindViewById<TextView>(Resource.Id.ProgressText).Text = "Camera detected. If you can see the feed, click the Save camera button to save the address.";
                 FindViewById<Button>(Resource.Id.SaveCamera).Enabled = true;
-                wPlayer.LoadUrl("file:///android_asset/Camera.html?camera=" + cameras[0]);
-                selected_camera = cameras[0];
+                DisplayThisCamera(Cameras[0]);
+                selected_camera_index = 0;
             }
             else {
                 FindViewById<TextView>(Resource.Id.ProgressText).Text = "Sorry, we couldn't find any cameras :(";
             }
+        }
+
+        private void DisplayNextCamera() { // displays next camera in the list. If the list is has ended, loops around to the first item.
+            selected_camera_index++;
+
+            if (selected_camera_index == Cameras.Count) {
+                selected_camera_index = 0;
+            }
+
+            DisplayThisCamera(Cameras[selected_camera_index]);
+        }
+
+        private void DisplayPreviousCamera() { // displays the previous camera in the list. If the first item was selected, displays the last item.
+            selected_camera_index--;
+
+            if (selected_camera_index < 0) {
+                selected_camera_index = Cameras.Count - 1;
+            }
+            DisplayThisCamera(Cameras[selected_camera_index]);
+        }
+
+        private void DisplayThisCamera(string url) {
+            WebView wPlayer = FindViewById<WebView>(Resource.Id.TestCamera);
+            WebSettings settings = wPlayer.Settings;
+            settings.JavaScriptEnabled = true;
+
+            wPlayer.LoadUrl("file:///android_asset/Camera.html?camera=" + url);
+            selected_camera = url;
         }
     }
 }
