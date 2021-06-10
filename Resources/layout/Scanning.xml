@@ -5,14 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="20px"
+    android:weightSum="10"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:orientation="horizontal"
-        android:gravity="center">
-
+        android:gravity="center"
+        android:layout_weight="1">
+   
         <ProgressBar
             android:layout_width="20dp"
             android:layout_height="20dp"
@@ -22,23 +24,54 @@
             android:layout_height="20dp"
             android:text="Scanning the network, please wait..."
             android:id="@+id/ProgressText"/>
-    </LinearLayout>
+     </LinearLayout>
 
-    <android.webkit.WebView
-        android:layout_width="fill_parent"
-        android:layout_height="250dp"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/TestCamera"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="7.5">
+        <android.webkit.WebView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/TestCamera"
             />
-
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="2">
+            <ImageButton
+                android:src="@drawable/button_border"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:backgroundTint="@color/mtrl_btn_transparent_bg_color"
+                android:contentDescription="@string/Btn_left"
+                android:id="@+id/PreviousCamera"
+                android:layout_width="match_parent"
+                android:enabled="false"
+                android:visibility="invisible"/>
+            <ImageButton
+                android:src="@drawable/BtnRightIcon"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:contentDescription="@string/Btn_right"
+                android:backgroundTint="@color/mtrl_btn_transparent_bg_color"
+                android:id="@+id/NextCamera"
+                android:layout_width="match_parent"
+                android:enabled="false"
+                android:visibility="invisible"/>
+                
+        </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
+        android:layout_weight="1.5"
         android:weightSum="2"
-        tools:ignore="MissingDimension,XmlNamespace">
+        tools:ignore="MissingDimension,XmlNamespace"
+        >
         <Button
             android:text="Save camera"
             android:layout_width="match_parent"

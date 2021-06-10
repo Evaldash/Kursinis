@@ -10,7 +10,6 @@
       -ms-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
       font-size: xx-large;
-      display: none;
       color:white;
       }
       body{
@@ -42,18 +41,19 @@
       }
 
       window.addEventListener('load', (event) =>{
-      var url_string = window.location.href;
-      var url = new URL(url_string);
-      var camera_adress= url.searchParams.get("camera");
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var camera_adress= url.searchParams.get("camera");
 
-      document.getElementById("camera").src = camera_adress;
+        document.getElementById("camera").src = camera_adress;
+        document.getElementById("camera").onload = CameraFound();
       });
     </script>
 
     <div class="imgbox">
-      <img id="camera" class="center-fit" src="" alt="" onload="CameraFound();" onerror="NoCameraFound();"></img>
+      <img id="camera" onerror="NoCameraFound();" class="center-fit" src="" alt=""></img>
     </div>
-    <h1 class="ErrorMessage" id="ErrorMessage"> Error: couldn't connect to camera. </h1>
+    <h1 class="ErrorMessage" id="ErrorMessage"> Couldn't connect to camera at specified address. </h1>
 
   </body>
 </html>

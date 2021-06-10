@@ -58,7 +58,7 @@
                 android:layout_gravity="center_vertical"
                 android:contentDescription="@string/Btn_right"
                 android:backgroundTint="@color/mtrl_btn_transparent_bg_color"
-                android:id="@+id/btnRight" />
+                android:id="@+id/btnRight"/>
         </LinearLayout>
 
         <LinearLayout
