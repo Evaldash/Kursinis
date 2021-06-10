@@ -12,6 +12,10 @@ using System.Linq;
 using System;
 using Android.Net.Wifi;
 using System.Runtime.Remoting.Contexts;
+using System.Drawing;
+using System.IO;
+using System.Net.Http;
+using System.Globalization;
 
 namespace Kursinis {
     [Activity(Label = "Activity1", ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
@@ -55,63 +59,37 @@ namespace Kursinis {
         }
 
         public async void FindCameras(string subadrr, CancellationToken token) {
-            Ping ping;
-            PingReply pingReply;
-            List<string> ActiveIPS = new List<string>();
-
             try {
                 await Task.Run(() => {
                    Parallel.For(1, 254, new ParallelOptions { CancellationToken = token, }, (i, loopState) => {
-
                        token.ThrowIfCancellationRequested();
-                            ping = new Ping();
-                            string TestingAddr = subadrr + i;
-                            pingReply = ping.Send(TestingAddr);
+                       string TestingAddr = subadrr + i;
+                       string pot_cam_address = "http://" + TestingAddr + ":8080?action=stream";
 
-                            if (pingReply.Status == IPStatus.Success && !token.IsCancellationRequested) {
+                       HttpWebRequest request = (HttpWebRequest)WebRequest.Create(pot_cam_address);
+                       request.Timeout = 15000;
+                       request.Method = "GET";
 
-                                if (!ActiveIPS.Contains(TestingAddr) && !token.IsCancellationRequested) {
-                                    ActiveIPS.Add(TestingAddr);
-                                }
-                            }
-                    });
+                       try {
+                           using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
+                               if (response.StatusCode == HttpStatusCode.OK) {
+                                   if (!Cameras.Contains(pot_cam_address)) {
+                                       Cameras.Add(pot_cam_address);
+                                   }
+                               }
+                           }
+                       }
+                       catch (WebException) {
+                       }
+                   });
                 }, token);
             }
             catch (System.OperationCanceledException ex) {
 
             }
 
-            if (!token.IsCancellationRequested) {
-                FindViewById<TextView>(Resource.Id.ProgressText).Text = "Scanning completed. Finding cameras...";
-
-                foreach (string ActiveIP in ActiveIPS) {
-
-                    if (token.IsCancellationRequested) { // cancel the loop if the cancel button is pressed
-                        break;
-                    }
-
-                    string pot_cam_address = "http://" + ActiveIP + ":8080?action=stream";
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(pot_cam_address);
-                    request.Timeout = 15000;
-                    request.Method = "GET";
-
-                    try {
-                        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
-                            if (response.StatusCode == HttpStatusCode.OK) {
-                                if (!Cameras.Contains(pot_cam_address)) {
-                                    Cameras.Add(pot_cam_address);
-                                }
-                            }
-                        }
-                    }
-                    catch (WebException) {
-                    }
-                }
-
-                if (!token.IsCancellationRequested) { // cancel the loop if the cancel button is pressed
-                    DisplayCameras(Cameras);
-                }
-
+            if (!token.IsCancellationRequested) { // cancel the loop if the cancel button is pressed
+                DisplayCameras(Cameras);
             }
         }
         private void DisplayCameras(List<string> cameras) {
@@ -122,10 +100,10 @@ namespace Kursinis {
             FindViewById<ProgressBar>(Resource.Id.ScanningProgressBar).Visibility = Android.Views.ViewStates.Invisible;
 
             if (cameras.Count > 1) {
-                FindViewById<TextView>(Resource.Id.ProgressText).Text = "There seems to be more than one camera available. Please select one out of the cameras.";
+                FindViewById<TextView>(Resource.Id.ProgressText).Text = "There seems to be more than one device available. Please select the camera feed you wish to use.";
             }
             else if (cameras.Count == 1) {
-                FindViewById<TextView>(Resource.Id.ProgressText).Text = "Camera found. Click the Save camera button to save the address.";
+                FindViewById<TextView>(Resource.Id.ProgressText).Text = "Camera detected. If you can see the feed, click the Save camera button to save the address.";
                 FindViewById<Button>(Resource.Id.SaveCamera).Enabled = true;
                 wPlayer.LoadUrl("file:///android_asset/Camera.html?camera=" + cameras[0]);
                 selected_camera = cameras[0];
