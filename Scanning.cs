@@ -19,9 +19,16 @@ namespace Kursinis {
         int selected_camera_index;
         string selected_camera;
 
+        WebView wPlayer;
+        WebSettings settings;
+
         protected override void OnCreate(Bundle savedInstanceState) {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.Scanning);
+
+            wPlayer = FindViewById<WebView>(Resource.Id.TestCamera);
+            settings = wPlayer.Settings;
+            settings.JavaScriptEnabled = true;
 
             _tokenSource = new CancellationTokenSource();
             var token = _tokenSource.Token;
@@ -48,7 +55,6 @@ namespace Kursinis {
             string[] numbers = IPaddress.Split('.');
             string subnet = numbers[0] + '.' + numbers[1] + '.' + numbers[2] + '.';
 
-            Console.WriteLine(subnet);
             FindCameras(subnet, token);
         }
 
@@ -87,7 +93,6 @@ namespace Kursinis {
             }
         }
         private void DisplayCameras() {
-
             FindViewById<ProgressBar>(Resource.Id.ScanningProgressBar).Visibility = Android.Views.ViewStates.Invisible;
 
             if (Cameras.Count > 1) {
@@ -138,10 +143,6 @@ namespace Kursinis {
         }
 
         private void DisplayThisCamera(string url) {
-            WebView wPlayer = FindViewById<WebView>(Resource.Id.TestCamera);
-            WebSettings settings = wPlayer.Settings;
-            settings.JavaScriptEnabled = true;
-
             wPlayer.LoadUrl("file:///android_asset/Camera.html?camera=" + url);
             selected_camera = url;
         }
