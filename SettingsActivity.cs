@@ -14,7 +14,7 @@ namespace Kursinis {
     public class SettingsActivity : Activity{
         BluetoothAdapter adapter = BluetoothAdapter.DefaultAdapter;
         LinearLayout BTSelection;
-        string updated_name = null;
+        string updated_name = Preferences.Get("pi_name", "None");
         protected override void OnCreate(Bundle savedInstanceState){
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.settings);
@@ -26,6 +26,7 @@ namespace Kursinis {
             string camera_adress = Intent.GetStringExtra("camera_adress");
 
             FindViewById<EditText>(Resource.Id.camera_adress).Text = camera_adress;
+            FindViewById<TextView>(Resource.Id.BTselectionText).Text = Preferences.Get("pi_name", "Choose selection");
 
             FindViewById<Button>(Resource.Id.BtnCancel).Click += (o, e) =>{
                 Finish();
@@ -37,7 +38,6 @@ namespace Kursinis {
                 if (current == Xamarin.Essentials.NetworkAccess.Internet) { // If internet connection is present
                     var profiles = Connectivity.ConnectionProfiles;
                     if (profiles.Contains(ConnectionProfile.WiFi)) { // if wifi is enabled
-
                         var intent = new Intent(this, typeof(Scanning));
                         StartActivityForResult(intent, 1234);
                     }

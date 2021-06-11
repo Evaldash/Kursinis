@@ -273,8 +273,8 @@ namespace Kursinis {
                     BTConnect();
                 }
                 else {
-                    Toast.MakeText(Application.Context, "Disconnected.", ToastLength.Short).Show();
                     BTDisconnect();
+                    Toast.MakeText(Application.Context, "Disconnected.", ToastLength.Short).Show();
                 }
             }
             else if (item.ItemId == Resource.Id.CameraIcon) {
@@ -290,7 +290,12 @@ namespace Kursinis {
                 }
             }
             else if (item.ItemId == Resource.Id.snapshot_button) {
-                DownloadFileByDownloadManager(snapshot_address);
+                if (!Preferences.Get("CamEnabled", false)) {
+                    Toast.MakeText(Application.Context, "Please turn on the camera, if you want to take a screenshot.", ToastLength.Short).Show();
+                }
+                else {
+                    DownloadFileByDownloadManager(snapshot_address);
+                }
             }
             return base.OnOptionsItemSelected(item);
         }
