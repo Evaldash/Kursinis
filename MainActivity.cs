@@ -8,12 +8,13 @@ using Android.Webkit;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using Java.Util;
+using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Xamarin.Essentials;
 
-namespace Kursinis
-{
+namespace Kursinis {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
     public class MainActivity : AppCompatActivity{
         BluetoothAdapter adapter = BluetoothAdapter.DefaultAdapter;
@@ -25,7 +26,7 @@ namespace Kursinis
 
         private string pi_name = Preferences.Get("pi_name", "raspberrypi");
         private string camera_adress = Preferences.Get("camera_adress", "http://192.168.1.111:8080/?action=stream");
-
+        private string snapshot_address = Preferences.Get("snapshot_address", "http://192.168.1.111:8080/?action=snapshot");
         private bool BTadapterOK() {
             if (adapter == null){
                 BTconnected = false;
@@ -164,13 +165,12 @@ namespace Kursinis
             wPlayer.SetPadding(0, 0, 0, 0);
 
             var current = Connectivity.NetworkAccess;
-            if (current == NetworkAccess.Internet) { // If internet connection is present
+            if (current == Xamarin.Essentials.NetworkAccess.Internet) { // If internet connection is present
                 var profiles = Connectivity.ConnectionProfiles;
                 if (profiles.Contains(ConnectionProfile.WiFi)){ // if wifi is enabled
                     WebSettings settings = wPlayer.Settings;
                     settings.JavaScriptEnabled = true;
 
-                    
                     wPlayer.LoadUrl("file:///android_asset/Camera.html?camera="+camera_adress);
                 }
                 else{
@@ -197,7 +197,7 @@ namespace Kursinis
 
         protected override void OnCreate(Bundle savedInstanceState){
             base.OnCreate(savedInstanceState);
-            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
+            Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
             InitialiseToolbar();
@@ -209,7 +209,39 @@ namespace Kursinis
             DisableButtons();
         }
 
-       public override bool OnCreateOptionsMenu(IMenu menu){
+        public bool DownloadFileByDownloadManager(string imageURL) {
+            try {
+                string file_ext = ".jpg";
+                string file_name = "Snapshot" + DateTime.Now.ToString("yyyy MM dd hh mm ss").Replace(" ", "") + file_ext;
+                var path = Android.OS.Environment.DirectoryDcim;
+
+                Android.Net.Uri uri = Android.Net.Uri.Parse(imageURL);
+                DownloadManager.Request request = new DownloadManager.Request(uri);
+                request.SetDestinationInExternalPublicDir(path, file_name);
+                request.SetTitle(file_name);
+                request.SetNotificationVisibility(DownloadVisibility.VisibleNotifyCompleted); // to notify when download is complete
+
+                // Notify the user about the completed "download"
+                var downloadManager = DownloadManager.FromContext(Android.App.Application.Context);
+
+                var d_id = downloadManager.Enqueue(request);
+                return true;
+            }
+            catch (Exception ex) {
+                Android.App.AlertDialog.Builder alert = new Android.App.AlertDialog.Builder(this);
+                alert.SetTitle("Error");
+                alert.SetMessage("There has been an error downloading the screenshot. :(");
+
+                alert.SetPositiveButton("OK", (senderAlert, args) => {});
+
+                Dialog dialog = alert.Create();
+                dialog.Show();
+
+                return false;
+            }
+        }
+
+        public override bool OnCreateOptionsMenu(IMenu menu){
             MenuInflater.Inflate(Resource.Menu.settings, menu);
 
             var CamIcon = menu.FindItem(Resource.Id.CameraIcon);
@@ -221,7 +253,7 @@ namespace Kursinis
         }
 
         public override bool OnOptionsItemSelected(IMenuItem item){
-            if (item.ItemId == Resource.Id.settingsBtn){
+            if (item.ItemId == Resource.Id.settingsBtn) {
                 var intent = new Intent(this, typeof(SettingsActivity));
                 intent.PutExtra("pi_name", pi_name);
                 intent.PutExtra("camera_adress", camera_adress);
@@ -229,24 +261,23 @@ namespace Kursinis
                 StartActivityForResult(intent, 1234);
             }
 
-            else if (item.ItemId == Resource.Id.menu_info){
+            else if (item.ItemId == Resource.Id.menu_info) {
                 var intent = new Intent(this, typeof(InfoActivity));
                 StartActivity(intent);
             }
 
-            else if (item.ItemId == Resource.Id.connectionStatus){
+            else if (item.ItemId == Resource.Id.connectionStatus) {
                 BTsymbol = item;
 
-                if (!BTconnected){
+                if (!BTconnected) {
                     BTConnect();
                 }
-                else{
+                else {
                     Toast.MakeText(Application.Context, "Disconnected.", ToastLength.Short).Show();
                     BTDisconnect();
                 }
             }
-
-            if (item.ItemId == Resource.Id.CameraIcon) {
+            else if (item.ItemId == Resource.Id.CameraIcon) {
                 if (Preferences.Get("CamEnabled", false) == false) { // jei buvo isjungta
                     Preferences.Set("CamEnabled", true);
                     item.SetIcon(Resource.Drawable.outline_videocam_24);
@@ -257,6 +288,9 @@ namespace Kursinis
                     item.SetIcon(Resource.Drawable.outline_videocam_off_24);
                     DisconnectCamera();
                 }
+            }
+            else if (item.ItemId == Resource.Id.snapshot_button) {
+                DownloadFileByDownloadManager(snapshot_address);
             }
             return base.OnOptionsItemSelected(item);
         }
@@ -271,9 +305,11 @@ namespace Kursinis
 
                     pi_name = updated_name;
                     camera_adress = updated_adress;
+                    snapshot_address = get_snapshot_address(camera_adress);
 
                     Preferences.Set("pi_name", pi_name);
                     Preferences.Set("camera_adress", camera_adress);
+                    Preferences.Set("snapshot_address", snapshot_address);
 
                     if (Preferences.Get("CamEnabled", false)) {
                         ConnectCamera();
@@ -282,6 +318,11 @@ namespace Kursinis
                     Toast.MakeText(Application.Context, "Settings saved.", ToastLength.Short).Show();
                 }
             }
+        }
+
+        private string get_snapshot_address(string stream_addr) {
+            string snap_address = stream_addr.Replace("?action=stream", "?action=snapshot");
+            return snap_address;
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults){
