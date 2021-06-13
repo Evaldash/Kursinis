@@ -1,6 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <item
+  android:icon="@drawable/outline_celebration_20"
+  android:id="@+id/FunPageIcon"
+  app:showAsAction="always"
+  />
+  
   <item
   android:icon="@drawable/outline_photo_camera_24"
   android:id="@+id/snapshot_button"
