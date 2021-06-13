@@ -6539,6 +6539,9 @@ namespace Kursinis
 			// aapt resource value: 0x7F080175
 			public const int special_effects_controller_view_tag = 2131231093;
 			
+			// aapt resource value: 0x7F08001D
+			public const int SpinBtn = 2131230749;
+			
 			// aapt resource value: 0x7F080176
 			public const int spline = 2131231094;
 			
@@ -6641,8 +6644,8 @@ namespace Kursinis
 			// aapt resource value: 0x7F080196
 			public const int tag_window_insets_animation_callback = 2131231126;
 			
-			// aapt resource value: 0x7F08001F
-			public const int TestCamera = 2131230751;
+			// aapt resource value: 0x7F080020
+			public const int TestCamera = 2131230752;
 			
 			// aapt resource value: 0x7F080197
 			public const int test_checkbox_android_button_tint = 2131231127;
@@ -6710,8 +6713,8 @@ namespace Kursinis
 			// aapt resource value: 0x7F0801A6
 			public const int text_input_start_icon = 2131231142;
 			
-			// aapt resource value: 0x7F080020
-			public const int TheNoBtn = 2131230752;
+			// aapt resource value: 0x7F080021
+			public const int TheNoBtn = 2131230753;
 			
 			// aapt resource value: 0x7F0801AD
 			public const int time = 2131231149;
@@ -6737,11 +6740,11 @@ namespace Kursinis
 			// aapt resource value: 0x7F0801B4
 			public const int topPanel = 2131231156;
 			
-			// aapt resource value: 0x7F08001D
-			public const int TOP_END = 2131230749;
-			
 			// aapt resource value: 0x7F08001E
-			public const int TOP_START = 2131230750;
+			public const int TOP_END = 2131230750;
+			
+			// aapt resource value: 0x7F08001F
+			public const int TOP_START = 2131230751;
 			
 			// aapt resource value: 0x7F0801B5
 			public const int touch_outside = 2131231157;
@@ -6769,9 +6772,6 @@ namespace Kursinis
 			
 			// aapt resource value: 0x7F0801BD
 			public const int triangle = 2131231165;
-			
-			// aapt resource value: 0x7F080021
-			public const int TurnAroundBtn = 2131230753;
 			
 			// aapt resource value: 0x7F0801BE
 			public const int @unchecked = 2131231166;
