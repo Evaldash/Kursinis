@@ -7,55 +7,40 @@ android:layout_height="match_parent">
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:rowCount="3"
+    android:rowCount="2"
     android:columnCount="3"
     android:layout_centerInParent="true"
-    android:layout_centerHorizontal="true"
-    android:layout_margin="30dp"
     android:useDefaultMargins="true">
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:text="Go crazy!"
         android:id="@+id/GoCrazyBtn"/>
         <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Turn around"
-        android:id="@+id/TurnAroundBtn"/>
-        <Button
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:text="Look around"
         android:id="@+id/LookAroundBtn"/>
         <Button
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:text="Lightshow"
         android:id="@+id/LightShowBtn"/>
         <Button
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:text="Flash the lights"
+        android:text="Flash!"
         android:id="@+id/LightFlashBtn"/>
         <Button
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:text="No"
         android:id="@+id/TheNoBtn"/>
         <Button
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:text="Spin!"/>
-        <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""/>
-        <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""/>
-    
+        android:text="Spin!"
+        android:id="@+id/SpinBtn"/>
 </GridLayout>
  </RelativeLayout>

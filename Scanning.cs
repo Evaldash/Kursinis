@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Android.Webkit;
 using System.Threading;
 using Android.Content;
-using System;
 using Android.Net.Wifi;
 
 namespace Kursinis {

@@ -12,7 +12,6 @@ using System;
 using System.Linq;
 using System.Text;
 using Xamarin.Essentials;
-using System.Timers;
 
 namespace Kursinis {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
@@ -87,7 +86,8 @@ namespace Kursinis {
                 BTDisconnect();
             }
         }
-        
+
+
         private void InitialiseButtons(){ // initialises buttons to work with the Pi
             System.Timers.Timer fwdtimer = new System.Timers.Timer(); // data sending timer. Checks whether the buttons are still pressed, if so, sends data every second.
             fwdtimer.Interval = 1000;
@@ -319,7 +319,33 @@ namespace Kursinis {
                     DownloadFileByDownloadManager(snapshot_address);
                 }
             }
+            else if (item.ItemId == Resource.Id.FunPageIcon) {
+                Android.App.AlertDialog.Builder dialog = new Android.App.AlertDialog.Builder(this);
+                Android.App.AlertDialog alert = dialog.Create();
+                TextView title = new TextView(this) {
+                    Text = "Let's have some fun!"
+                };
+                title.SetPadding(10, 10, 10, 10);
+                title.Gravity = GravityFlags.Center;
+                title.TextSize = 20;
+                alert.SetCustomTitle(title);
+
+                LayoutInflater inflater = (LayoutInflater)GetSystemService(LayoutInflaterService);
+                View view = inflater.Inflate(Resource.Layout.fun_page, null);
+                alert.SetView(view);
+                alert.Show();
+                InitialiseFunButtons(alert);
+            }
             return base.OnOptionsItemSelected(item);
+        }
+
+        private void InitialiseFunButtons(Android.App.AlertDialog alert) {
+            alert.FindViewById<Button>(Resource.Id.GoCrazyBtn).Click += (s, e) => { if (BTconnected) sendData("Cr"); };
+            alert.FindViewById<Button>(Resource.Id.LookAroundBtn).Click += (s, e) => { if (BTconnected) sendData("LA"); };
+            alert.FindViewById<Button>(Resource.Id.LightShowBtn).Click += (s, e) => { if (BTconnected) sendData("LS"); };
+            alert.FindViewById<Button>(Resource.Id.LightFlashBtn).Click += (s, e) => { if (BTconnected) sendData("Fl"); };
+            alert.FindViewById<Button>(Resource.Id.TheNoBtn).Click += (s, e) => { if (BTconnected) sendData("No"); };
+            alert.FindViewById<Button>(Resource.Id.SpinBtn).Click += (s, e) => { if (BTconnected) sendData("SP"); };
         }
 
         // Call Back method  to get the Message form other Activity  
@@ -347,13 +373,13 @@ namespace Kursinis {
             }
         }
 
-        private string get_snapshot_address(string stream_addr) {
+        private string get_snapshot_address(string stream_addr) { // returns snapshot address from stream address
             string snap_address = stream_addr.Replace("?action=stream", "?action=snapshot");
             return snap_address;
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults){
-            Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+            Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
