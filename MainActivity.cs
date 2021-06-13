@@ -9,10 +9,10 @@ using Android.Widget;
 using AndroidX.AppCompat.App;
 using Java.Util;
 using System;
-using System.IO;
 using System.Linq;
 using System.Text;
 using Xamarin.Essentials;
+using System.Timers;
 
 namespace Kursinis {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
@@ -58,14 +58,13 @@ namespace Kursinis {
                         BTSuccess();
                     }
                     catch (Java.IO.IOException){
-                        Toast.MakeText(Application.Context, "Error: no response from Bluetooth server.", ToastLength.Short).Show();
+                        Toast.MakeText(Application.Context, "Error: couldn't connect to Bluetooth server.", ToastLength.Short).Show();
                     }
                 }
             }
         }
         private void BTSuccess(){
             Toast.MakeText(Application.Context, "Conneection succesful.", ToastLength.Short).Show();
-            
             BTsymbol.SetIcon(Resource.Drawable.BTConnected);
             EnableButtons();
             BTconnected = true;
@@ -73,7 +72,6 @@ namespace Kursinis {
 
         private void BTDisconnect(){
             _socket.Close();
-
             BTsymbol.SetIcon(Resource.Drawable.BTDisconnected);
             DisableButtons();
             BTconnected = false;
@@ -85,59 +83,84 @@ namespace Kursinis {
                 await _socket.OutputStream.WriteAsync(buffer, 0, buffer.Length);
             }
             catch (Java.IO.IOException) {
-                Toast.MakeText(Application.Context, "Conneection lost!", ToastLength.Short).Show();
+                Toast.MakeText(Application.Context, "Connection lost!", ToastLength.Short).Show();
                 BTDisconnect();
             }
         }
-        private void InitialiseButtons(){
+        
+        private void InitialiseButtons(){ // initialises buttons to work with the Pi
+            System.Timers.Timer fwdtimer = new System.Timers.Timer(); // data sending timer. Checks whether the buttons are still pressed, if so, sends data every second.
+            fwdtimer.Interval = 1000;
+            fwdtimer.Elapsed += (s, e) => sendData("U");
+
             FindViewById<ImageButton>(Resource.Id.btnUp).Touch += (s, e) => { // Up
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down){
-                    handled = true;
                     sendData("U");
+                    fwdtimer.Start();
+                    handled = true;
                 }
                 else if (e.Event.Action == MotionEventActions.Up) {
-                    handled = true;
                     sendData("u");
+                    fwdtimer.Stop();
+                    handled = true;
                 }
                 e.Handled = handled;
             };
+
+            System.Timers.Timer bcktimer = new System.Timers.Timer();
+            bcktimer.Interval = 1000;
+            bcktimer.Elapsed += (s, e) => sendData("D");
 
             FindViewById<ImageButton>(Resource.Id.btnDown).Touch += (s, e) => { // Down
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down){
-                    handled = true;
+                    bcktimer.Start();
                     sendData("D");
+                    handled = true;
                 }
                 else if (e.Event.Action == MotionEventActions.Up){
-                    handled = true;
+                    bcktimer.Stop();
                     sendData("d");
+                    handled = true;
                 }
                 e.Handled = handled;
             };
+
+            System.Timers.Timer Lefttimer = new System.Timers.Timer();
+            Lefttimer.Interval = 1000;
+            Lefttimer.Elapsed += (s, e) => sendData("L");
 
             FindViewById<ImageButton>(Resource.Id.btnLeft).Touch += (s, e) => { // Left
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down) {
-                    handled = true;
                     sendData("L");
+                    Lefttimer.Start();
+                    handled = true;
                 }
                 else if (e.Event.Action == MotionEventActions.Up) {
-                    handled = true;
                     sendData("l");
+                    Lefttimer.Stop();
+                    handled = true;
                 }
                 e.Handled = handled;
             };
 
+            System.Timers.Timer Righttimer = new System.Timers.Timer();
+            Righttimer.Interval = 1000;
+            Righttimer.Elapsed += (s, e) => sendData("R");
+
             FindViewById<ImageButton>(Resource.Id.btnRight).Touch += (s, e) => { // Right
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down){
-                    handled = true;
                     sendData("R");
+                    handled = true;
+                    Righttimer.Start();
                 }
                 else if (e.Event.Action == MotionEventActions.Up){
-                    handled = true;
                     sendData("r");
+                    handled = true;
+                    Righttimer.Stop();
                 }
                 e.Handled = handled;
             };
@@ -185,7 +208,6 @@ namespace Kursinis {
             var wPlayer = FindViewById<WebView>(Resource.Id.camera);
             wPlayer.Settings.LoadWithOverviewMode = true;
             wPlayer.Settings.UseWideViewPort = true;
-
             wPlayer.LoadUrl("");
         }
 
