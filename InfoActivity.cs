@@ -22,9 +22,7 @@ namespace Kursinis {
                 "R - right start \n" +
                 "r - right stop \n" +
                 "\n" +
-                "Typically the mjpeg camera adress will look something like this: \n http://192.168.1.111:8080/?action=stream \n You can change this setting, and your pi name in the settings page. \n" +
-                "\n" + " This project is open source, and can be found on GitHub: https://github.com/Evaldash/Kursinis " + "\n" +
-                "If you encounter a bug, feel free to report it on GitHub in the issues section. Feel free to contribute by adding features, if you wish.";
+                "Typically the mjpeg camera adress will look something like this: \n http://192.168.1.111:8080/?action=stream \n You can change this setting, and your pi name in the settings page. \n";
 
             textview.Text=tekstas;
         }
