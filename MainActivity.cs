@@ -58,43 +58,45 @@ namespace Kursinis {
             }
         }
 
-        private async void BTConnect(){
-            if (BTadapterOK()){
+        private async void BTConnect() {
+            if (BTadapterOK()) {
                 device = (from bd in adapter.BondedDevices
                           where bd.Name == pi_name
                           select bd).FirstOrDefault();
 
-                if (device == null){
+                if (device == null) {
                     BTconnected = false;
                     string message = "Error: no " + pi_name + " device found.";
                     showShortToast(Application.Context, message);
                 }
-                else{
-                    try{
+                else {
+                    try {
                         _socket = device.CreateRfcommSocketToServiceRecord(UUID.FromString("00001101-0000-1000-8000-00805f9b34fb"));
                         await _socket.ConnectAsync();
                         BTSuccess();
                     }
-                    catch (Java.IO.IOException){
+                    catch (Java.IO.IOException) {
                         showShortToast(Application.Context, "Error: couldn't connect to Bluetooth server.");
                     }
                 }
             }
         }
-        private void BTSuccess(){
+        private void BTSuccess() {
             showShortToast(Application.Context, "Connection succesful.");
             BTsymbol.SetIcon(Resource.Drawable.BTConnected);
             EnableButtons();
             BTconnected = true;
         }
 
-        private void BTDisconnect(){
-            _socket.Close();
-            BTsymbol.SetIcon(Resource.Drawable.BTDisconnected);
-            DisableButtons();
-            BTconnected = false;
+        private void BTDisconnect() {
+            if (_socket != null) {
+                _socket.Close();
+                BTsymbol.SetIcon(Resource.Drawable.BTDisconnected);
+                DisableButtons();
+                BTconnected = false;
+            }
         }
-        private async void sendData(string strbuffer){
+        private async void sendData(string strbuffer) {
             if (BTconnected) {
                 byte[] buffer = Encoding.ASCII.GetBytes(strbuffer);
                 try {
@@ -107,10 +109,10 @@ namespace Kursinis {
             }
         }
 
-        private void InitialiseButtons(){ // initialises buttons to work with the Pi
+        private void InitialiseButtons() { // initialises buttons to work with the Pi
             System.Timers.Timer fwdtimer = new System.Timers.Timer(); // data sending timer. Checks whether the buttons are still pressed, if so, sends data every second.
             fwdtimer.Interval = 1000;
-            fwdtimer.Elapsed += (s, e) =>  sendData("U"); 
+            fwdtimer.Elapsed += (s, e) => sendData("U");
 
             System.Timers.Timer bcktimer = new System.Timers.Timer();
             bcktimer.Interval = 1000;
@@ -126,7 +128,7 @@ namespace Kursinis {
 
             FindViewById<ImageButton>(Resource.Id.btnUp).Touch += (s, e) => { // Up
                 var handled = false;
-                if (e.Event.Action == MotionEventActions.Down){
+                if (e.Event.Action == MotionEventActions.Down) {
                     bcktimer.Stop(); // just in case
                     sendData("U");
                     fwdtimer.Start();
@@ -142,13 +144,13 @@ namespace Kursinis {
 
             FindViewById<ImageButton>(Resource.Id.btnDown).Touch += (s, e) => { // Down
                 var handled = false;
-                if (e.Event.Action == MotionEventActions.Down){
+                if (e.Event.Action == MotionEventActions.Down) {
                     fwdtimer.Stop(); // just in case
                     bcktimer.Start();
                     sendData("D");
                     handled = true;
                 }
-                else if (e.Event.Action == MotionEventActions.Up){
+                else if (e.Event.Action == MotionEventActions.Up) {
                     bcktimer.Stop();
                     sendData("d");
                     handled = true;
@@ -174,13 +176,13 @@ namespace Kursinis {
 
             FindViewById<ImageButton>(Resource.Id.btnRight).Touch += (s, e) => { // Right
                 var handled = false;
-                if (e.Event.Action == MotionEventActions.Down){
+                if (e.Event.Action == MotionEventActions.Down) {
                     Lefttimer.Stop(); // just in case
                     sendData("R");
                     handled = true;
                     Righttimer.Start();
                 }
-                else if (e.Event.Action == MotionEventActions.Up){
+                else if (e.Event.Action == MotionEventActions.Up) {
                     sendData("r");
                     handled = true;
                     Righttimer.Stop();
@@ -189,21 +191,21 @@ namespace Kursinis {
             };
         }
 
-        private void EnableButtons(){
+        private void EnableButtons() {
             FindViewById<ImageButton>(Resource.Id.btnUp).Enabled = true;
             FindViewById<ImageButton>(Resource.Id.btnDown).Enabled = true;
             FindViewById<ImageButton>(Resource.Id.btnLeft).Enabled = true;
             FindViewById<ImageButton>(Resource.Id.btnRight).Enabled = true;
         }
 
-        private void DisableButtons(){
+        private void DisableButtons() {
             FindViewById<ImageButton>(Resource.Id.btnUp).Enabled = false;
             FindViewById<ImageButton>(Resource.Id.btnDown).Enabled = false;
             FindViewById<ImageButton>(Resource.Id.btnLeft).Enabled = false;
             FindViewById<ImageButton>(Resource.Id.btnRight).Enabled = false;
         }
 
-        private void ConnectCamera(){
+        private void ConnectCamera() {
             var wPlayer = FindViewById<WebView>(Resource.Id.camera);
             wPlayer.Settings.LoadWithOverviewMode = true;
             wPlayer.Settings.UseWideViewPort = true;
@@ -213,17 +215,17 @@ namespace Kursinis {
             var current = Connectivity.NetworkAccess;
             if (current == NetworkAccess.Internet) { // If internet connection is present
                 var profiles = Connectivity.ConnectionProfiles;
-                if (profiles.Contains(ConnectionProfile.WiFi)){ // if wifi is enabled
+                if (profiles.Contains(ConnectionProfile.WiFi)) { // if wifi is enabled
                     WebSettings settings = wPlayer.Settings;
                     settings.JavaScriptEnabled = true;
 
-                    wPlayer.LoadUrl("file:///android_asset/Camera.html?camera="+camera_adress);
+                    wPlayer.LoadUrl("file:///android_asset/Camera.html?camera=" + camera_adress);
                 }
-                else{
+                else {
                     wPlayer.LoadUrl("file:///android_asset/NoWifi.html");
                 }
             }
-            else{
+            else {
                 wPlayer.LoadUrl("file:///android_asset/NoInternet.html");
             }
         }
@@ -234,13 +236,13 @@ namespace Kursinis {
             wPlayer.LoadUrl("");
         }
 
-        private void InitialiseToolbar(){
+        private void InitialiseToolbar() {
             var toolbar = FindViewById<AndroidX.AppCompat.Widget.Toolbar>(Resource.Id.toolbar1);
             SetSupportActionBar(toolbar);
             SupportActionBar.Title = "Kursinis";
         }
 
-        protected override void OnCreate(Bundle savedInstanceState){
+        protected override void OnCreate(Bundle savedInstanceState) {
             base.OnCreate(savedInstanceState);
             Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
@@ -252,6 +254,11 @@ namespace Kursinis {
             }
             InitialiseButtons();
             DisableButtons();
+        }
+
+        protected override void OnPause() {
+            BTDisconnect();
+            base.OnPause();
         }
 
         public bool DownloadFileByDownloadManager(string imageURL) {
@@ -277,7 +284,7 @@ namespace Kursinis {
                 alert.SetTitle("Error");
                 alert.SetMessage("There has been an error downloading the screenshot. :(");
 
-                alert.SetPositiveButton("OK", (senderAlert, args) => {});
+                alert.SetPositiveButton("OK", (senderAlert, args) => { });
 
                 Dialog dialog = alert.Create();
                 dialog.Show();
@@ -286,7 +293,7 @@ namespace Kursinis {
             }
         }
 
-        public override bool OnCreateOptionsMenu(IMenu menu){
+        public override bool OnCreateOptionsMenu(IMenu menu) {
             MenuInflater.Inflate(Resource.Menu.settings, menu);
 
             var CamIcon = menu.FindItem(Resource.Id.CameraIcon);
@@ -297,7 +304,7 @@ namespace Kursinis {
             return base.OnCreateOptionsMenu(menu);
         }
 
-        public override bool OnOptionsItemSelected(IMenuItem item){
+        public override bool OnOptionsItemSelected(IMenuItem item) {
             if (item.ItemId == Resource.Id.settingsBtn) {
                 var intent = new Intent(this, typeof(SettingsActivity));
                 intent.PutExtra("pi_name", pi_name);
@@ -370,10 +377,10 @@ namespace Kursinis {
         }
 
         // Call Back method  to get the Message form other Activity  
-        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data){
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data) {
             base.OnActivityResult(requestCode, resultCode, data);
-            if (requestCode == 1234){
-                if (resultCode == Result.Ok){
+            if (requestCode == 1234) {
+                if (resultCode == Result.Ok) {
                     string updated_name = data.GetStringExtra("updated_name");
                     string updated_adress = data.GetStringExtra("updated_adress");
 
@@ -399,9 +406,12 @@ namespace Kursinis {
             return snap_address;
         }
 
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults){
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults) {
             Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
+
+
+
 }
