@@ -112,11 +112,11 @@ namespace Kursinis {
         private void InitialiseButtons() { // initialises buttons to work with the Pi
             System.Timers.Timer fwdtimer = new System.Timers.Timer(); // data sending timer. Checks whether the buttons are still pressed, if so, sends data every second.
             fwdtimer.Interval = 1000;
-            fwdtimer.Elapsed += (s, e) => sendData("U");
+            fwdtimer.Elapsed += (s, e) => sendData("F");
 
             System.Timers.Timer bcktimer = new System.Timers.Timer();
             bcktimer.Interval = 1000;
-            bcktimer.Elapsed += (s, e) => sendData("D");
+            bcktimer.Elapsed += (s, e) => sendData("B");
 
             System.Timers.Timer Lefttimer = new System.Timers.Timer();
             Lefttimer.Interval = 1000;
@@ -130,12 +130,12 @@ namespace Kursinis {
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down) {
                     bcktimer.Stop(); // just in case
-                    sendData("U");
+                    sendData("F");
                     fwdtimer.Start();
                     handled = true;
                 }
                 else if (e.Event.Action == MotionEventActions.Up) {
-                    sendData("u");
+                    sendData("f");
                     fwdtimer.Stop();
                     handled = true;
                 }
@@ -147,12 +147,12 @@ namespace Kursinis {
                 if (e.Event.Action == MotionEventActions.Down) {
                     fwdtimer.Stop(); // just in case
                     bcktimer.Start();
-                    sendData("D");
+                    sendData("B");
                     handled = true;
                 }
                 else if (e.Event.Action == MotionEventActions.Up) {
                     bcktimer.Stop();
-                    sendData("d");
+                    sendData("b");
                     handled = true;
                 }
                 e.Handled = handled;
