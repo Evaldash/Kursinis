@@ -15,7 +15,7 @@ using Xamarin.Essentials;
 
 namespace Kursinis {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape)]
-    public class MainActivity : AppCompatActivity{
+    public class MainActivity : AppCompatActivity {
         BluetoothAdapter adapter = BluetoothAdapter.DefaultAdapter;
         private BluetoothSocket _socket;
         private bool BTconnected = false;
@@ -27,17 +27,35 @@ namespace Kursinis {
         private string camera_adress = Preferences.Get("camera_adress", "http://192.168.1.111:8080/?action=stream");
         private string snapshot_address = Preferences.Get("snapshot_address", "http://192.168.1.111:8080/?action=snapshot");
         private bool BTadapterOK() {
-            if (adapter == null){
+            if (adapter == null) {
                 BTconnected = false;
-                Toast.MakeText(Application.Context, "Error: no Bluetooth device found.", ToastLength.Short).Show();
+                showShortToast(Application.Context, "Error: no Bluetooth device found.");
                 return false;
             }
-            else if (!adapter.IsEnabled){
+            else if (!adapter.IsEnabled) {
                 BTconnected = false;
-                Toast.MakeText(Application.Context, "Error: Bluetooth device is turned off.", ToastLength.Short).Show();
+                showShortToast(Application.Context, "Error: Bluetooth device is turned off.");
                 return false;
             }
             return true;
+        }
+
+        private void showShortToast(Context context, string text) {
+            Toast toast = null;
+            try {
+                if (toast != null) {
+                    toast.SetText(text);
+                }
+                else {
+                    toast = Toast.MakeText(context, text, ToastLength.Short);
+                }
+                toast.Show();
+            }
+            catch (Exception e) {
+                Looper.Prepare();
+                Toast.MakeText(context, text, ToastLength.Short).Show();
+                Looper.Loop();
+            }
         }
 
         private async void BTConnect(){
@@ -48,7 +66,8 @@ namespace Kursinis {
 
                 if (device == null){
                     BTconnected = false;
-                    Toast.MakeText(Application.Context, "Error: no " + pi_name + " device found.", ToastLength.Short).Show();
+                    string message = "Error: no " + pi_name + " device found.";
+                    showShortToast(Application.Context, message);
                 }
                 else{
                     try{
@@ -57,13 +76,13 @@ namespace Kursinis {
                         BTSuccess();
                     }
                     catch (Java.IO.IOException){
-                        Toast.MakeText(Application.Context, "Error: couldn't connect to Bluetooth server.", ToastLength.Short).Show();
+                        showShortToast(Application.Context, "Error: couldn't connect to Bluetooth server.");
                     }
                 }
             }
         }
         private void BTSuccess(){
-            Toast.MakeText(Application.Context, "Conneection succesful.", ToastLength.Short).Show();
+            showShortToast(Application.Context, "Connection succesful.");
             BTsymbol.SetIcon(Resource.Drawable.BTConnected);
             EnableButtons();
             BTconnected = true;
@@ -76,26 +95,39 @@ namespace Kursinis {
             BTconnected = false;
         }
         private async void sendData(string strbuffer){
-            byte[] buffer = Encoding.ASCII.GetBytes(strbuffer);
-
-            try{
-                await _socket.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-            }
-            catch (Java.IO.IOException) {
-                Toast.MakeText(Application.Context, "Connection lost!", ToastLength.Short).Show();
-                BTDisconnect();
+            if (BTconnected) {
+                byte[] buffer = Encoding.ASCII.GetBytes(strbuffer);
+                try {
+                    await _socket.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                }
+                catch (Java.IO.IOException) {
+                    showShortToast(Application.Context, "Connection lost!");
+                    BTDisconnect();
+                }
             }
         }
-
 
         private void InitialiseButtons(){ // initialises buttons to work with the Pi
             System.Timers.Timer fwdtimer = new System.Timers.Timer(); // data sending timer. Checks whether the buttons are still pressed, if so, sends data every second.
             fwdtimer.Interval = 1000;
-            fwdtimer.Elapsed += (s, e) => sendData("U");
+            fwdtimer.Elapsed += (s, e) =>  sendData("U"); 
+
+            System.Timers.Timer bcktimer = new System.Timers.Timer();
+            bcktimer.Interval = 1000;
+            bcktimer.Elapsed += (s, e) => sendData("D");
+
+            System.Timers.Timer Lefttimer = new System.Timers.Timer();
+            Lefttimer.Interval = 1000;
+            Lefttimer.Elapsed += (s, e) => sendData("L");
+
+            System.Timers.Timer Righttimer = new System.Timers.Timer();
+            Righttimer.Interval = 1000;
+            Righttimer.Elapsed += (s, e) => sendData("R");
 
             FindViewById<ImageButton>(Resource.Id.btnUp).Touch += (s, e) => { // Up
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down){
+                    bcktimer.Stop(); // just in case
                     sendData("U");
                     fwdtimer.Start();
                     handled = true;
@@ -108,13 +140,10 @@ namespace Kursinis {
                 e.Handled = handled;
             };
 
-            System.Timers.Timer bcktimer = new System.Timers.Timer();
-            bcktimer.Interval = 1000;
-            bcktimer.Elapsed += (s, e) => sendData("D");
-
             FindViewById<ImageButton>(Resource.Id.btnDown).Touch += (s, e) => { // Down
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down){
+                    fwdtimer.Stop(); // just in case
                     bcktimer.Start();
                     sendData("D");
                     handled = true;
@@ -127,13 +156,10 @@ namespace Kursinis {
                 e.Handled = handled;
             };
 
-            System.Timers.Timer Lefttimer = new System.Timers.Timer();
-            Lefttimer.Interval = 1000;
-            Lefttimer.Elapsed += (s, e) => sendData("L");
-
             FindViewById<ImageButton>(Resource.Id.btnLeft).Touch += (s, e) => { // Left
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down) {
+                    Righttimer.Stop(); // just in case
                     sendData("L");
                     Lefttimer.Start();
                     handled = true;
@@ -146,13 +172,10 @@ namespace Kursinis {
                 e.Handled = handled;
             };
 
-            System.Timers.Timer Righttimer = new System.Timers.Timer();
-            Righttimer.Interval = 1000;
-            Righttimer.Elapsed += (s, e) => sendData("R");
-
             FindViewById<ImageButton>(Resource.Id.btnRight).Touch += (s, e) => { // Right
                 var handled = false;
                 if (e.Event.Action == MotionEventActions.Down){
+                    Lefttimer.Stop(); // just in case
                     sendData("R");
                     handled = true;
                     Righttimer.Start();
@@ -188,7 +211,7 @@ namespace Kursinis {
             wPlayer.SetPadding(0, 0, 0, 0);
 
             var current = Connectivity.NetworkAccess;
-            if (current == Xamarin.Essentials.NetworkAccess.Internet) { // If internet connection is present
+            if (current == NetworkAccess.Internet) { // If internet connection is present
                 var profiles = Connectivity.ConnectionProfiles;
                 if (profiles.Contains(ConnectionProfile.WiFi)){ // if wifi is enabled
                     WebSettings settings = wPlayer.Settings;
@@ -296,7 +319,7 @@ namespace Kursinis {
                 }
                 else {
                     BTDisconnect();
-                    Toast.MakeText(Application.Context, "Disconnected.", ToastLength.Short).Show();
+                    showShortToast(Application.Context, "Disconnected.");
                 }
             }
             else if (item.ItemId == Resource.Id.CameraIcon) {
@@ -313,7 +336,7 @@ namespace Kursinis {
             }
             else if (item.ItemId == Resource.Id.snapshot_button) {
                 if (!Preferences.Get("CamEnabled", false)) {
-                    Toast.MakeText(Application.Context, "Please turn on the camera, if you want to take a screenshot.", ToastLength.Short).Show();
+                    showShortToast(Application.Context, "Please turn on the camera, if you want to take a screenshot.");
                 }
                 else {
                     DownloadFileByDownloadManager(snapshot_address);
@@ -340,12 +363,10 @@ namespace Kursinis {
         }
 
         private void InitialiseFunButtons(Android.App.AlertDialog alert) {
-            alert.FindViewById<Button>(Resource.Id.GoCrazyBtn).Click += (s, e) => { if (BTconnected) sendData("Cr"); };
+            alert.FindViewById<Button>(Resource.Id.SurpriseBtn).Click += (s, e) => { if (BTconnected) sendData("Sr"); };
             alert.FindViewById<Button>(Resource.Id.LookAroundBtn).Click += (s, e) => { if (BTconnected) sendData("LA"); };
-            alert.FindViewById<Button>(Resource.Id.LightShowBtn).Click += (s, e) => { if (BTconnected) sendData("LS"); };
-            alert.FindViewById<Button>(Resource.Id.LightFlashBtn).Click += (s, e) => { if (BTconnected) sendData("Fl"); };
             alert.FindViewById<Button>(Resource.Id.TheNoBtn).Click += (s, e) => { if (BTconnected) sendData("No"); };
-            alert.FindViewById<Button>(Resource.Id.SpinBtn).Click += (s, e) => { if (BTconnected) sendData("SP"); };
+            alert.FindViewById<Button>(Resource.Id.YesBtn).Click += (s, e) => { if (BTconnected) sendData("Yes"); };
         }
 
         // Call Back method  to get the Message form other Activity  
@@ -368,7 +389,7 @@ namespace Kursinis {
                         ConnectCamera();
                     }
 
-                    Toast.MakeText(Application.Context, "Settings saved.", ToastLength.Short).Show();
+                    showShortToast(Application.Context, "Settings saved.");
                 }
             }
         }
