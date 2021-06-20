@@ -1,12 +1,16 @@
-﻿using Android.App;
+﻿using Android;
+using Android.App;
 using Android.Bluetooth;
 using Android.Content;
+using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Webkit;
 using Android.Widget;
 using AndroidX.AppCompat.App;
+using AndroidX.Core.App;
+using AndroidX.Core.Content;
 using Java.Util;
 using System;
 using System.Linq;
@@ -59,27 +63,35 @@ namespace Kursinis {
         }
 
         private async void BTConnect() {
-            if (BTadapterOK()) {
-                device = (from bd in adapter.BondedDevices
-                          where bd.Name == pi_name
-                          select bd).FirstOrDefault();
 
-                if (device == null) {
-                    BTconnected = false;
-                    string message = "Error: no " + pi_name + " device found.";
-                    showShortToast(Application.Context, message);
-                }
-                else {
-                    try {
-                        _socket = device.CreateRfcommSocketToServiceRecord(UUID.FromString("00001101-0000-1000-8000-00805f9b34fb"));
-                        await _socket.ConnectAsync();
-                        BTSuccess();
+            if (!(ContextCompat.CheckSelfPermission(this, Manifest.Permission.Bluetooth) == (int)Permission.Granted)) {
+                ActivityCompat.RequestPermissions(this, new String[] { Manifest.Permission.Bluetooth }, 1);
+            }
+            else {
+                if (BTadapterOK()) {
+                    device = (from bd in adapter.BondedDevices
+                              where bd.Name == pi_name
+                              select bd).FirstOrDefault();
+
+                    if (device == null) {
+                        BTconnected = false;
+                        string message = "Error: no " + pi_name + " device found.";
+                        showShortToast(Application.Context, message);
                     }
-                    catch (Java.IO.IOException) {
-                        showShortToast(Application.Context, "Error: couldn't connect to Bluetooth server.");
+                    else {
+                        try {
+                            _socket = device.CreateRfcommSocketToServiceRecord(UUID.FromString("00001101-0000-1000-8000-00805f9b34fb"));
+                            await _socket.ConnectAsync();
+                            BTSuccess();
+                        }
+                        catch (Java.IO.IOException) {
+                            showShortToast(Application.Context, "Error: couldn't connect to Bluetooth server.");
+                        }
                     }
                 }
             }
+
+
         }
         private void BTSuccess() {
             showShortToast(Application.Context, "Connection succesful.");
@@ -206,27 +218,39 @@ namespace Kursinis {
         }
 
         private void ConnectCamera() {
-            var wPlayer = FindViewById<WebView>(Resource.Id.camera);
-            wPlayer.Settings.LoadWithOverviewMode = true;
-            wPlayer.Settings.UseWideViewPort = true;
 
-            wPlayer.SetPadding(0, 0, 0, 0);
-
-            var current = Connectivity.NetworkAccess;
-            if (current == NetworkAccess.Internet) { // If internet connection is present
-                var profiles = Connectivity.ConnectionProfiles;
-                if (profiles.Contains(ConnectionProfile.WiFi)) { // if wifi is enabled
-                    WebSettings settings = wPlayer.Settings;
-                    settings.JavaScriptEnabled = true;
-
-                    wPlayer.LoadUrl("file:///android_asset/Camera.html?camera=" + camera_adress);
-                }
-                else {
-                    wPlayer.LoadUrl("file:///android_asset/NoWifi.html");
-                }
+            if (!(ContextCompat.CheckSelfPermission(this, Manifest.Permission.AccessNetworkState) == (int)Permission.Granted)) {
+                ActivityCompat.RequestPermissions(this, new String[] { Manifest.Permission.Bluetooth }, 1);
             }
             else {
-                wPlayer.LoadUrl("file:///android_asset/NoInternet.html");
+
+                if (!(ContextCompat.CheckSelfPermission(this, Manifest.Permission.AccessWifiState) == (int)Permission.Granted)) {
+                    ActivityCompat.RequestPermissions(this, new String[] { Manifest.Permission.Bluetooth }, 1);
+                }
+                else {
+                    var wPlayer = FindViewById<WebView>(Resource.Id.camera);
+                    wPlayer.Settings.LoadWithOverviewMode = true;
+                    wPlayer.Settings.UseWideViewPort = true;
+
+                    wPlayer.SetPadding(0, 0, 0, 0);
+
+                    var current = Connectivity.NetworkAccess;
+                    if (current == NetworkAccess.Internet) { // If internet connection is present
+                        var profiles = Connectivity.ConnectionProfiles;
+                        if (profiles.Contains(ConnectionProfile.WiFi)) { // if wifi is enabled
+                            WebSettings settings = wPlayer.Settings;
+                            settings.JavaScriptEnabled = true;
+
+                            wPlayer.LoadUrl("file:///android_asset/Camera.html?camera=" + camera_adress);
+                        }
+                        else {
+                            wPlayer.LoadUrl("file:///android_asset/NoWifi.html");
+                        }
+                    }
+                    else {
+                        wPlayer.LoadUrl("file:///android_asset/NoInternet.html");
+                    }
+                }
             }
         }
         private void DisconnectCamera() {
